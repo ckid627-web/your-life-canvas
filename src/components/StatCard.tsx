@@ -5,22 +5,28 @@ interface StatCardProps {
   value: string | number;
   subtitle?: string;
   icon?: React.ReactNode;
+  accent?: boolean;
 }
 
-export default function StatCard({ title, value, subtitle, icon }: StatCardProps) {
+export default function StatCard({ title, value, subtitle, icon, accent }: StatCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card rounded-xl border border-border p-5 card-hover"
+      transition={{ duration: 0.4 }}
+      className={`rounded-2xl p-5 transition-all duration-300 ${
+        accent
+          ? 'bg-primary/10 border border-primary/20 hover:border-primary/40 hover:shadow-[var(--glow-primary)]'
+          : 'glass-card-hover'
+      }`}
     >
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
-          <p className="text-2xl font-bold text-foreground mt-1">{value}</p>
+          <p className={`text-2xl font-bold font-display mt-1.5 ${accent ? 'text-primary' : 'text-foreground'}`}>{value}</p>
           {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
         </div>
-        {icon && <div className="text-primary/70">{icon}</div>}
+        {icon && <div className={accent ? 'text-primary' : 'text-muted-foreground'}>{icon}</div>}
       </div>
     </motion.div>
   );

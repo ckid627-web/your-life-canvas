@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Bot, User } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Send, Bot, User, Sparkles } from 'lucide-react';
 import { getGoals, getCompletionRate, getLifeScore, getStreak, getTodaysTasks } from '@/lib/store';
 
 interface Message {
@@ -11,7 +10,7 @@ interface Message {
 
 export default function AIAssistantPage() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hi! I'm your productivity coach. Ask me anything about your goals, progress, or schedule. Try: \"Am I falling behind?\" or \"Suggest today's priorities.\"" },
+    { role: 'assistant', content: "Hey! 👋 I'm your productivity coach. Ask me about your goals, progress, or schedule.\n\nTry:\n• \"Am I falling behind?\"\n• \"Suggest today's priorities\"\n• \"Improve my plan\"" },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -30,39 +29,39 @@ export default function AIAssistantPage() {
     const q = query.toLowerCase();
 
     if (q.includes('behind') || q.includes('falling') || q.includes('progress')) {
-      if (goals.length === 0) return "You haven't set any goals yet. Let's start by creating your first goal in the Goals page!";
+      if (goals.length === 0) return "You haven't set any goals yet. Head to the Goals page to create your first one! 🎯";
       const behind = goals.filter(g => getCompletionRate(g) < 30);
       if (behind.length > 0) {
-        return `You're falling behind on ${behind.length} goal(s): ${behind.map(g => `"${g.title}" (${getCompletionRate(g)}%)`).join(', ')}. Consider breaking these into smaller daily tasks to get back on track.`;
+        return `⚠️ You're behind on ${behind.length} goal(s):\n\n${behind.map(g => `• "${g.title}" — ${getCompletionRate(g)}%`).join('\n')}\n\nTip: Break these into smaller daily tasks to regain momentum.`;
       }
-      return `You're doing great! All your goals are on track. Your life score is ${lifeScore}. Keep it up!`;
+      return `✅ You're on track! Life Score: ${lifeScore}. All goals progressing well. Keep pushing! 💪`;
     }
 
     if (q.includes('priorities') || q.includes('today') || q.includes('focus')) {
-      if (todayTasks.length === 0) return "No tasks scheduled for today. Go to Goals and assign tasks to today's date, or I can suggest priorities from your active goals.";
+      if (todayTasks.length === 0) return "No tasks today. Go to Goals → add tasks with today's date. Want me to help plan? 📋";
       const pending = todayTasks.filter(t => !t.completed);
-      if (pending.length === 0) return "🎉 You've completed all today's tasks! Consider reviewing your weekly milestones or journaling about your progress.";
-      return `Here are your priorities for today:\n${pending.map((t, i) => `${i + 1}. ${t.title}`).join('\n')}\n\nYou've completed ${completedToday}/${todayTasks.length} so far. Focus on one task at a time!`;
+      if (pending.length === 0) return "🎉 All tasks done today! Consider journaling about your wins or reviewing weekly milestones.";
+      return `Today's priorities:\n\n${pending.map((t, i) => `${i + 1}. ${t.title}`).join('\n')}\n\n${completedToday}/${todayTasks.length} done so far. Focus on one at a time! 🎯`;
     }
 
     if (q.includes('break') || q.includes('milestone') || q.includes('breakdown')) {
-      return "To break a goal into milestones:\n1. Open the goal in the Goals page\n2. Click 'Add Milestone' to create weekly checkpoints\n3. Add specific tasks under each milestone\n4. Set dates for each task\n\nTip: Start with 4-6 milestones per goal, each with 3-5 actionable tasks.";
+      return "To break a goal into milestones:\n\n1. Open the goal in Goals page\n2. Click \"Add Milestone\" for weekly checkpoints\n3. Add 3-5 tasks per milestone\n4. Set specific dates\n\n💡 Tip: Start with 4-6 milestones, each achievable in a week.";
     }
 
     if (q.includes('improve') || q.includes('plan') || q.includes('better')) {
       const tips: string[] = [];
-      if (streak < 3) tips.push("Build consistency: aim for at least 1 completed task daily to build your streak.");
-      if (goals.some(g => g.milestones.length === 0)) tips.push("Some goals have no milestones. Break them into weekly milestones for better tracking.");
-      if (lifeScore < 50) tips.push("Your life score is below 50. Focus on completing high-priority tasks first.");
-      if (tips.length === 0) tips.push("You're doing well! Consider setting stretch goals or adding new categories to challenge yourself.");
-      return `Here are my suggestions:\n${tips.map((t, i) => `${i + 1}. ${t}`).join('\n')}`;
+      if (streak < 3) tips.push("🔥 Build your streak: complete at least 1 task daily");
+      if (goals.some(g => g.milestones.length === 0)) tips.push("📊 Some goals have no milestones — break them down!");
+      if (lifeScore < 50) tips.push("📈 Life Score is below 50 — focus on high-priority tasks first");
+      if (tips.length === 0) tips.push("🌟 You're doing great! Consider stretch goals or new categories");
+      return `Suggestions:\n\n${tips.join('\n')}`;
     }
 
     if (q.includes('score') || q.includes('life score')) {
-      return `Your current Life Score is **${lifeScore}**. This is calculated from your task completion rate (60%) and weekly consistency (40%). ${lifeScore >= 70 ? 'Excellent work!' : lifeScore >= 40 ? 'Room for improvement — focus on daily consistency.' : 'Let\'s work on building a daily habit. Start small!'}`;
+      return `Your Life Score: **${lifeScore}**\n\nCalculated from:\n• Task completion (60%)\n• Weekly consistency (40%)\n\n${lifeScore >= 70 ? '🔥 Excellent!' : lifeScore >= 40 ? '📈 Room to grow' : '🌱 Let\'s build habits!'}`;
     }
 
-    return `I can help you with:\n- "Am I falling behind?" — progress check\n- "Suggest today's priorities" — daily focus\n- "Break this goal into milestones" — task planning\n- "Improve my plan" — optimization tips\n- "What's my life score?" — overall score\n\nWhat would you like to know?`;
+    return "I can help with:\n\n• \"Am I falling behind?\" — progress check\n• \"Suggest today's priorities\" — daily focus\n• \"Break this goal into milestones\" — planning\n• \"Improve my plan\" — optimization\n• \"What's my life score?\" — overall score\n\nWhat would you like to know? 🤔";
   }
 
   function handleSend() {
@@ -71,22 +70,20 @@ export default function AIAssistantPage() {
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
-
     setTimeout(() => {
-      const response = generateResponse(input);
-      setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: generateResponse(input) }]);
       setLoading(false);
-    }, 500);
+    }, 600);
   }
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)]">
       <div className="mb-4">
-        <h1 className="text-3xl font-bold text-foreground">AI Assistant</h1>
-        <p className="text-muted-foreground mt-1">Your personal productivity coach</p>
+        <h1 className="text-3xl font-bold font-display text-foreground">AI Coach</h1>
+        <p className="text-muted-foreground mt-1 text-sm">Your personal productivity assistant</p>
       </div>
 
-      <div ref={scrollRef} className="flex-1 overflow-auto space-y-4 pb-4">
+      <div ref={scrollRef} className="flex-1 overflow-auto space-y-3 pb-4">
         {messages.map((msg, i) => (
           <motion.div
             key={i}
@@ -95,32 +92,34 @@ export default function AIAssistantPage() {
             className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}
           >
             {msg.role === 'assistant' && (
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <Bot size={16} className="text-primary" />
+              <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                <Sparkles size={14} className="text-primary" />
               </div>
             )}
-            <div className={`max-w-[80%] rounded-xl px-4 py-3 text-sm whitespace-pre-wrap ${
-              msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-foreground'
+            <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap leading-relaxed ${
+              msg.role === 'user'
+                ? 'bg-primary text-primary-foreground rounded-br-md'
+                : 'card-elevated text-foreground rounded-bl-md'
             }`}>
               {msg.content}
             </div>
             {msg.role === 'user' && (
-              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                <User size={16} className="text-muted-foreground" />
+              <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                <User size={14} className="text-muted-foreground" />
               </div>
             )}
           </motion.div>
         ))}
         {loading && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <Bot size={16} className="text-primary" />
+            <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+              <Sparkles size={14} className="text-primary" />
             </div>
-            <div className="bg-card border border-border rounded-xl px-4 py-3">
-              <div className="flex gap-1">
-                <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div className="card-elevated rounded-2xl rounded-bl-md px-4 py-3">
+              <div className="flex gap-1.5">
+                {[0, 150, 300].map(d => (
+                  <div key={d} className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: `${d}ms` }} />
+                ))}
               </div>
             </div>
           </div>
@@ -128,15 +127,18 @@ export default function AIAssistantPage() {
       </div>
 
       <div className="flex gap-2">
-        <Input
+        <input
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
           placeholder="Ask me anything..."
-          className="flex-1"
+          className="flex-1 bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 transition-colors"
         />
-        <button onClick={handleSend} disabled={loading || !input.trim()}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50">
+        <button
+          onClick={handleSend}
+          disabled={loading || !input.trim()}
+          className="px-4 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        >
           <Send size={16} />
         </button>
       </div>
